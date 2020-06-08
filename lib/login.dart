@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
@@ -131,7 +132,23 @@ class _AnonymouslySignInSectionState extends State<_AnonymouslySignInSection> {
         _success = false;
       }
     });
-    Navigator.push(context, MaterialPageRoute(builder: (context) => HomePage(user, 0)));
+
+    var document = await Firestore.instance.document('users/$_userID').get().then((doc) {
+      if (doc.exists) {
+        print(_userID);
+        Navigator.push(context,
+            MaterialPageRoute(builder: (context) => HomePage(user, 0)));
+      }
+      else {
+        print('new user');
+        Firestore.instance.collection('users').document(user.uid).setData({
+          'name': currentUser.displayName == null ? 'Anonymous' : user
+              .displayName,
+        });
+        //@todo go to gender page
+      }
+    });
+
   }
 }
 
@@ -182,6 +199,7 @@ class _GoogleSignInSectionState extends State<_GoogleSignInSection> {
 
     final FirebaseUser currentUser = await _auth.currentUser();
     assert(user.uid == currentUser.uid);
+
     setState(() {
       if (user != null) {
         _success = true;
@@ -189,8 +207,24 @@ class _GoogleSignInSectionState extends State<_GoogleSignInSection> {
       } else {
         _success = false;
       }
+
     });
-    Navigator.push(context, MaterialPageRoute(builder: (context) => HomePage(user, 1)));
+
+    var document = await Firestore.instance.document('users/$_userID').get().then((doc) {
+      if (doc.exists) {
+        print(_userID);
+        Navigator.push(context,
+            MaterialPageRoute(builder: (context) => HomePage(user, 0)));
+      }
+      else {
+        print('new user');
+        Firestore.instance.collection('users').document(user.uid).setData({
+          'name': currentUser.displayName == null ? 'Anonymous' : user
+              .displayName,
+        });
+        //@todo go to gender page
+      }
+    });
   }
 }
 // TODO: Add AccentColorOverride (103)

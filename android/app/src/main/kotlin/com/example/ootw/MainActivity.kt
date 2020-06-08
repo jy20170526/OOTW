@@ -1,4 +1,4 @@
-package com.example.ootwappmobileapp2020
+package com.example.ootw
 
 import androidx.annotation.NonNull;
 import io.flutter.embedding.android.FlutterActivity

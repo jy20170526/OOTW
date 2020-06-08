@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:ootw/detail.dart';
@@ -8,23 +9,40 @@ import 'package:weather/weather_library.dart';
 class ootwPage extends StatefulWidget {
 
   final Weather weather;
+  final FirebaseUser user;
 
-  ootwPage(this.weather);
+  ootwPage(this.weather, this.user);
 
   @override
   _ootwPageState createState() => _ootwPageState();
 }
 
 class _ootwPageState extends State<ootwPage> {
+
+
+  String selected;
+
   @override
   Widget build(BuildContext context) {
+
+
+
     return Scaffold(
       appBar: buildAppBar(),
-      body: buildBody(),
+      body: buildBody(context),
     );
   }
 
-  Widget buildBody(){
+  Widget buildBody(BuildContext context){
+
+    List<String> ootwList;
+    setState(() {
+       ootwList = loadOotw();
+    });
+    print(ootwList);
+
+
+
     return SingleChildScrollView(
       child: Padding(
         padding: const EdgeInsets.all(20.0),
@@ -46,15 +64,25 @@ class _ootwPageState extends State<ootwPage> {
                     children: <Widget>[
                       Text('# OOTW', style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold, color: Colors.black54),),
                       SizedBox(height: 10,),
-                      Padding(padding: EdgeInsets.all(20),
-                      child: Column(
-                        children: <Widget>[
+                      Expanded(
+                        child: ListView.builder(
+                               itemCount: ootwList.length,
+                               itemBuilder: (BuildContext context, int index) {
+                                 return Align(
+                                   alignment: Alignment.centerLeft,
+                                   child: FlatButton(
 
-                          Text('#바지', style: TextStyle(fontSize: 15),),
-                        ],
-                      ),)
-
-
+                                     splashColor: Colors.blueAccent,
+                                     child: Text('#'+ootwList[index],style: TextStyle(fontSize: 15, color: selected == ootwList[index]? Colors.black : Colors.grey),),
+                                     onPressed: () {
+                                       setState(() {
+                                         selected = ootwList[index];
+                                         print(selected);
+                                       });
+                                     },),
+                                 );
+                               }),
+                      )
                     ],
                   ),
                 ),
@@ -76,7 +104,10 @@ class _ootwPageState extends State<ootwPage> {
               ],
             ),
             SizedBox(height: 40,),
-            Text('\'바지\' 에 대한 검색 결과입니다.'),
+
+            Text(selected == null ? '카테고리를 선택해 주세요.' : '\'$selected\' 에 대한 검색 결과입니다.'),
+            selected == null?
+            Container():
             Container(
                 height: 450,
 
@@ -86,10 +117,10 @@ class _ootwPageState extends State<ootwPage> {
       )
     );
   }
-
+//@todo 성별 추가되면 콜렉션 불러오는거 고치기
   Widget _buildCard(BuildContext context) {
     return StreamBuilder<QuerySnapshot>(
-      stream: Firestore.instance.collection('여성의류').where('category', isEqualTo: '바지').snapshots(),
+      stream: Firestore.instance.collection('여성의류').where('category', isEqualTo: selected).snapshots(),
       builder: (context, snapshot) {
         if (!snapshot.hasData) return LinearProgressIndicator();
 
@@ -116,9 +147,11 @@ class _ootwPageState extends State<ootwPage> {
       clipBehavior: Clip.antiAlias,
 
       child: InkWell(
-          onTap:() => Navigator.push(context, MaterialPageRoute(builder: (context) => detailPage(record,widget.weather))),
+          onTap:() => Navigator.push(context, MaterialPageRoute(builder: (context) => detailPage(record,widget.weather,widget.user))),
           child: Container(
-              child: Image.network(record.img)
+              child: Hero(
+                  tag : record.name,
+                  child: Image.network(record.img))
           )
       )
     );
@@ -126,9 +159,9 @@ class _ootwPageState extends State<ootwPage> {
 
   Widget buildAppBar(){
     return AppBar(
-      automaticallyImplyLeading: false,
+
       titleSpacing: 0.0,
-      leading: Container(),
+
       backgroundColor: Color(0xFFD2F0F7),
       title: Row(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -182,7 +215,17 @@ class _ootwPageState extends State<ootwPage> {
       return Image.asset('images/otherwise.png');
     }
   }
+//@todo 성별에 따라 다르게 리턴하기 + 보완
+  loadOotw() {
+
+    if(widget.weather.temperature.celsius >=25 )
+      return ['티셔츠','바지','청바지'];
+    else if(widget.weather.temperature.celsius <25 && widget.weather.temperature.celsius >15)
+      return ['카디건','블라우스/셔츠','점퍼', '바지','청바지' ];
+  }
 }
+
+
 
 class Record {
   final String name;

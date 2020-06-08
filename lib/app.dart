@@ -13,7 +13,9 @@ class ootwApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'OOTW',
-
+      theme: ThemeData(
+        primaryColor: const Color(0xFFBBBBBB)
+      ),
       home: LoginPage(),
 
       initialRoute: '/login',
