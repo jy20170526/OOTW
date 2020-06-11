@@ -5,8 +5,8 @@ import 'package:google_sign_in/google_sign_in.dart';
 
 class ProfilePage extends StatelessWidget {
   final FirebaseUser user;
-  int type;
-  ProfilePage(this.user, this.type);
+
+  ProfilePage(this.user);
   //type==1 //google login
   //type==0 //anonymous
 
@@ -39,9 +39,7 @@ class ProfilePage extends StatelessWidget {
             width: 130,
             height: 130,
             child: Image.network(
-              type == 0
-                  ? 'http://handong.edu/site/handong/res/img/logo.png'
-                  : user.photoUrl,
+              user.photoUrl,
             ),
           ),
           SizedBox(
@@ -77,9 +75,7 @@ class ProfilePage extends StatelessWidget {
                     ),
                     SizedBox(width: 15,),
                     Text(
-                      type==0
-                          ? 'Anonymous'
-                          : user.displayName,
+                      user.displayName,
                       style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                     ),
 
@@ -95,9 +91,7 @@ class ProfilePage extends StatelessWidget {
                     ),
                     SizedBox(width: 16,),
                     Text(
-                      type==0
-                          ? 'Anonymous'
-                          : user.email,
+                      user.email,
                       style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                     ),
 

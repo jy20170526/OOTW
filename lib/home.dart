@@ -14,6 +14,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:ootw/favorite.dart';
 import 'ootw.dart';
 import 'profile.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -27,8 +28,8 @@ import 'package:weather/weather_library.dart';
 
 class HomePage extends StatefulWidget {
   final FirebaseUser user;
-  int type;
-  HomePage(this.user, this.type);
+
+  HomePage(this.user);
   @override
   _HomePageState createState() => _HomePageState();
 }
@@ -130,7 +131,7 @@ class _HomePageState extends State<HomePage> {
               semanticLabel: 'profile',
             ),
             onPressed: () {
-              Navigator.push(context, MaterialPageRoute(builder: (context) => ProfilePage(widget.user, widget.type)));
+              Navigator.push(context, MaterialPageRoute(builder: (context) => ProfilePage(widget.user)));
             },
           ),
         ],
@@ -248,7 +249,8 @@ class _HomePageState extends State<HomePage> {
               title: Text('찜'),
               onTap: () {
 
-                Navigator.pushNamed(context, '/favorite');
+                Navigator.push(context, MaterialPageRoute(builder: (context) => FavoritePage(weather,widget.user)));
+
               },
             ),
             ListTile(
@@ -656,7 +658,7 @@ class _HomePageState extends State<HomePage> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: <Widget>[
                     IconButton(
-                      icon: Image.asset('images/outfit_button.png'),
+                      icon: Image.asset('images/outfitButton.png'),
                       iconSize: 9,
                       onPressed: () {
                         Navigator.push(context, MaterialPageRoute(builder: (context) => ootwPage(weather,widget.user),  fullscreenDialog: true));

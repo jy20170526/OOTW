@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:ootw/website.dart';
 import 'package:weather/weather_library.dart';
+import 'package:ootw/module.dart';
 
 import 'ootw.dart';
 
@@ -30,7 +31,21 @@ class detailPage extends StatefulWidget {
 class _detailPageState extends State<detailPage> {
 
   final reference = Firestore.instance;
+  Color fav_color;
+  DocumentReference docRef;
+  DocumentSnapshot doc;
+  List favorite;
 
+  Future<Color> set_color() async{
+    docRef = Firestore.instance.collection('users').document(widget.user.uid);
+    doc = await docRef.get();
+    favorite = doc.data['favorite'];
+    if(favorite.contains(widget.product.documentId)){
+      return Colors.red;
+    }else{
+      return Colors.black;
+    }
+  }
 
 
   @override
@@ -59,16 +74,9 @@ class _detailPageState extends State<detailPage> {
 
             children: <Widget>[
               SizedBox(height: 30,),
-              Align(
-                  alignment: Alignment.bottomLeft,
-                  child: IconButton(icon: Icon(Icons.arrow_back_ios), onPressed: () {
-                    Navigator.pop(context);
-                  },)),
               AspectRatio(
                 aspectRatio: 18/11,
-                child: Hero(
-                    tag: widget.product.name,
-                    child: Image.network(widget.product.img.split('?type')[0])),
+                child: Image.network(widget.product.img.split('?type')[0])
               ),
 
               SingleChildScrollView(
@@ -96,17 +104,44 @@ class _detailPageState extends State<detailPage> {
                               alignment: Alignment.topRight,
                               child: Text(widget.product.price, style: TextStyle(fontSize: 20),)),
                         ),
-                        Row(
-                          children: <Widget>[
-                            //@todo 찜목록 액션 및 아이콘 변경
-                            IconButton(icon: Icon(Icons.favorite, color: Colors.red,), onPressed: () async{
-                              await voteProduct();
-                              Scaffold.of(context).showSnackBar(likeit);
-                            },),
-                            IconButton(icon: Icon(Icons.shopping_basket), onPressed: () {
-                              Navigator.push(context, MaterialPageRoute(builder: (context) => webview(widget.weather,widget.product.url)));
-                            },)
-                          ],
+                        FutureBuilder(
+                            future: set_color(),
+                            builder: (BuildContext context, AsyncSnapshot snapshot) {
+                              if (snapshot.hasData == false) {
+                                return CircularProgressIndicator();
+                              }else if(snapshot.hasError){
+                                return Text('Error:{snapshot.error}');
+                              }else{
+                                fav_color=snapshot.data;
+                                return Row(
+                                  children: <Widget>[
+                                    IconButton(color: fav_color, icon: Icon(Icons.favorite),onPressed: () async{
+                                      DocumentReference docRef = Firestore.instance.collection('users').document(widget.user.uid);
+                                      DocumentSnapshot doc = await docRef.get();
+                                      List favorite = doc.data['favorite'];
+                                      if(favorite.contains(widget.product.documentId)){
+                                        setState(() {
+                                          fav_color = Colors.black;
+                                        });
+                                        docRef.updateData(
+                                            {'favorite': FieldValue.arrayRemove([widget.product.documentId])}
+                                        );
+                                      }else{
+                                        setState(() {
+                                          fav_color = Colors.red;
+                                        });
+                                        docRef.updateData(
+                                            {'favorite': FieldValue.arrayUnion([widget.product.documentId])}
+                                        );
+                                      }
+                                    },),
+                                    IconButton(icon: Icon(Icons.shopping_basket,),onPressed: (){
+                                      Navigator.push(context, MaterialPageRoute(builder: (context) => webview(widget.weather,widget.product.url)));
+                                    })
+                                  ],
+                                );
+                              }
+                            }
                         )
 
                       ],
@@ -124,9 +159,9 @@ class _detailPageState extends State<detailPage> {
 
   Widget buildAppBar(){
     return AppBar(
-      automaticallyImplyLeading: false,
+
       titleSpacing: 0.0,
-      leading: Container(),
+
       backgroundColor: Color(0xFFD2F0F7),
       title: Row(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,

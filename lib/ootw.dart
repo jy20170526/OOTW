@@ -3,8 +3,10 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:ootw/detail.dart';
-import 'package:ootw/weather.dart';
 import 'package:weather/weather_library.dart';
+import 'package:ootw/module.dart';
+
+import 'mlkit.dart';
 
 class ootwPage extends StatefulWidget {
 
@@ -20,7 +22,15 @@ class ootwPage extends StatefulWidget {
 class _ootwPageState extends State<ootwPage> {
 
 
-  String selected;
+  String selectedCate;
+  String gender;
+  int choice;
+
+  @override
+  initState() {
+    super.initState();
+    loadOotw();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -58,32 +68,38 @@ class _ootwPageState extends State<ootwPage> {
                   width: double.infinity,
 
                   color: Color(0xFFEFEDED),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: <Widget>[
-                      Text('# OOTW', style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold, color: Colors.black54),),
-                      SizedBox(height: 10,),
-                      Expanded(
-                        child: ListView.builder(
-                               itemCount: ootwList.length,
-                               itemBuilder: (BuildContext context, int index) {
-                                 return Align(
-                                   alignment: Alignment.centerLeft,
-                                   child: FlatButton(
+                  child: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: <Widget>[
+                        Text('# OOTW', style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold, color: Colors.black54),),
+                        SizedBox(height: 10,),
+                        Expanded(
+                          child: ListView.builder(
+                                 itemCount: ootwList.length,
+                                 itemBuilder: (BuildContext context, int index) {
+                                   return Align(
+                                     alignment: Alignment.centerLeft,
+                                       child: ChoiceChip(
+                                         selected: choice == index,
+                                         label: Text('#'+ootwList[index],style: TextStyle(fontSize: 15, color: selectedCate == ootwList[index]? Colors.black : Colors.grey),),
+                                         onSelected: (bool selected){
+                                           setState(() {
+                                             choice = selected ? index : null;
+                                             selectedCate = ootwList[index];
+                                           });
 
-                                     splashColor: Colors.blueAccent,
-                                     child: Text('#'+ootwList[index],style: TextStyle(fontSize: 15, color: selected == ootwList[index]? Colors.black : Colors.grey),),
-                                     onPressed: () {
-                                       setState(() {
-                                         selected = ootwList[index];
-                                         print(selected);
-                                       });
-                                     },),
-                                 );
-                               }),
-                      )
-                    ],
+                                         },
+                                         selectedColor: Color(0xFFD2F0F7),
+                                       ),
+//
+                                   );
+                                 }),
+                        )
+                      ],
+                    ),
                   ),
                 ),
                 Positioned(
@@ -104,9 +120,16 @@ class _ootwPageState extends State<ootwPage> {
               ],
             ),
             SizedBox(height: 40,),
-
-            Text(selected == null ? '카테고리를 선택해 주세요.' : '\'$selected\' 에 대한 검색 결과입니다.'),
-            selected == null?
+            FlatButton(
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(18.0),
+                  side: BorderSide(color: Colors.blue)
+              ),
+              child: Text('이 장소엔 어떤옷?'), onPressed: (){
+              Navigator.push(context, MaterialPageRoute(builder: (context) => mlPage(widget.weather,widget.user, gender)));
+            },),
+            Text(selectedCate == null ? '카테고리를 선택해 주세요.' : '\'$selectedCate\' 에 대한 검색 결과입니다.'),
+            selectedCate == null?
             Container():
             Container(
                 height: 450,
@@ -117,10 +140,9 @@ class _ootwPageState extends State<ootwPage> {
       )
     );
   }
-//@todo 성별 추가되면 콜렉션 불러오는거 고치기
   Widget _buildCard(BuildContext context) {
     return StreamBuilder<QuerySnapshot>(
-      stream: Firestore.instance.collection('여성의류').where('category', isEqualTo: selected).snapshots(),
+      stream: Firestore.instance.collection('$gender의류').where('category', isEqualTo: selectedCate).snapshots(),
       builder: (context, snapshot) {
         if (!snapshot.hasData) return LinearProgressIndicator();
 
@@ -149,9 +171,7 @@ class _ootwPageState extends State<ootwPage> {
       child: InkWell(
           onTap:() => Navigator.push(context, MaterialPageRoute(builder: (context) => detailPage(record,widget.weather,widget.user))),
           child: Container(
-              child: Hero(
-                  tag : record.name,
-                  child: Image.network(record.img))
+              child: Image.network(record.img)
           )
       )
     );
@@ -215,47 +235,32 @@ class _ootwPageState extends State<ootwPage> {
       return Image.asset('images/otherwise.png');
     }
   }
-//@todo 성별에 따라 다르게 리턴하기 + 보완
+
   loadOotw() {
 
-    if(widget.weather.temperature.celsius >=25 )
-      return ['티셔츠','바지','청바지'];
-    else if(widget.weather.temperature.celsius <25 && widget.weather.temperature.celsius >15)
-      return ['카디건','블라우스/셔츠','점퍼', '바지','청바지' ];
+    Firestore.instance.collection('users').document(widget.user.uid).get().then((docSnap) {
+        gender = docSnap['gender'];
+        print(gender);
+      assert(gender != null);
+    });
+
+    if(gender == '여성') {
+      if (widget.weather.temperature.celsius >= 25)
+        return ['티셔츠', '바지', '청바지'];
+      else if (widget.weather.temperature.celsius < 25 &&
+          widget.weather.temperature.celsius > 15)
+        return ['카디건', '블라우스/셔츠', '점퍼', '바지', '청바지'];
+    }
+    else {
+      if (widget.weather.temperature.celsius >= 25)
+        return ['티셔츠', '바지', '청바지'];
+      else if (widget.weather.temperature.celsius < 25 &&
+          widget.weather.temperature.celsius > 15)
+        return ['니트/스웨터', '셔츠/남방', '카디건', '바지', '청바지'];
+    }
   }
 }
 
-
-
-class Record {
-  final String name;
-  final String url;
-  final String img;
-  final String documentId;
-  final String price;
-
-  final DocumentReference reference;
-
-  Record.fromMap(Map<String, dynamic> map, {this.reference})
-      : assert(map['name'] != null),
-        assert(map['link'] != null),
-        assert(map['img'] != null),
-        assert(map['docID'] != null),
-
-
-        name = map['name'],
-        url = map['link'],
-        img = map['img'],
-        documentId = map['docID'],
-        price = map['price'];
-
-
-
-
-  Record.fromSnapshot(DocumentSnapshot snapshot)
-      : this.fromMap(snapshot.data, reference: snapshot.reference);
-
-}
 
 
 

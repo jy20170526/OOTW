@@ -1,9 +1,10 @@
 import 'dart:io';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'home.dart';
+import 'gender.dart';
 
 final FirebaseAuth _auth = FirebaseAuth.instance;
 final GoogleSignIn _googleSignIn = GoogleSignIn();
@@ -31,10 +32,7 @@ class _LoginPageState extends State<LoginPage> {
               ],
             ),
             SizedBox(height: 120.0),
-            // TODO: Wrap Username with AccentColorOverride (103)
-            // TODO: Remove filled: true values (103)
             _GoogleSignInSection(),
-            // TODO: Wrap Password with AccentColorOverride (103)
             _AnonymouslySignInSection(),
             SizedBox(height: 12.0),
             _SignOutSection(),
@@ -137,18 +135,19 @@ class _AnonymouslySignInSectionState extends State<_AnonymouslySignInSection> {
       if (doc.exists) {
         print(_userID);
         Navigator.push(context,
-            MaterialPageRoute(builder: (context) => HomePage(user, 0)));
+            MaterialPageRoute(builder: (context) => HomePage(user)));
       }
       else {
         print('new user');
         Firestore.instance.collection('users').document(user.uid).setData({
           'name': currentUser.displayName == null ? 'Anonymous' : user
               .displayName,
+          'gender' : null,
+          'favorite' : List<String>()
         });
-        //@todo go to gender page
+        Navigator.push(context, MaterialPageRoute(builder: (context) => GenderPage(user)));
       }
     });
-
   }
 }
 
@@ -199,7 +198,6 @@ class _GoogleSignInSectionState extends State<_GoogleSignInSection> {
 
     final FirebaseUser currentUser = await _auth.currentUser();
     assert(user.uid == currentUser.uid);
-
     setState(() {
       if (user != null) {
         _success = true;
@@ -207,24 +205,25 @@ class _GoogleSignInSectionState extends State<_GoogleSignInSection> {
       } else {
         _success = false;
       }
-
     });
 
     var document = await Firestore.instance.document('users/$_userID').get().then((doc) {
       if (doc.exists) {
         print(_userID);
         Navigator.push(context,
-            MaterialPageRoute(builder: (context) => HomePage(user, 0)));
+            MaterialPageRoute(builder: (context) => HomePage(user)));
       }
       else {
         print('new user');
         Firestore.instance.collection('users').document(user.uid).setData({
           'name': currentUser.displayName == null ? 'Anonymous' : user
               .displayName,
+          'gender' : null,
+          'favorite' : List<String>()
         });
-        //@todo go to gender page
+        Navigator.push(context, MaterialPageRoute(builder: (context) => GenderPage(user)));
       }
     });
+
   }
 }
-// TODO: Add AccentColorOverride (103)
