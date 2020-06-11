@@ -58,30 +58,32 @@ class _GenderPageState extends State<GenderPage> {
                 style: TextStyle(color: Colors.red[300], fontWeight: FontWeight.bold),
               ),
               SizedBox(
-                height: 60,
+                height: 90,
               ),
-              Container(
-                color: Color(0xFFD2F0F7),
-                child: SizedBox(
-                  width: 700,
-                  height: 70,
-                  child: FlatButton(
-                    child: Text('다음', style: TextStyle(fontSize: 16,fontWeight: FontWeight.bold),),
-                    onPressed: (){
-                      if(gender==null){
-                        setState(() {
-                          message='먼저 성별을 선택해주세요!';
-                        });
-                      }else{
-                        Firestore.instance
-                            .collection('users')
-                            .document(widget.user.uid)
-                            .updateData ({
-                          'gender' : gender,
-                        });
-                        Navigator.push(context, MaterialPageRoute(builder: (context) => HomePage(widget.user)));
-                      }
-                    },
+              Expanded(
+                child: Container(
+                  color: Color(0xFFD2F0F7),
+                  child: SizedBox(
+                    width: 700,
+                    height: 50,
+                    child: FlatButton(
+                      child: Text('다음', style: TextStyle(fontSize: 16,fontWeight: FontWeight.bold),),
+                      onPressed: (){
+                        if(gender==null){
+                          setState(() {
+                            message='먼저 성별을 선택해주세요!';
+                          });
+                        }else{
+                          Firestore.instance
+                              .collection('users')
+                              .document(widget.user.uid)
+                              .updateData ({
+                            'gender' : gender,
+                          });
+                          Navigator.push(context, MaterialPageRoute(builder: (context) => HomePage(widget.user)));
+                        }
+                      },
+                    ),
                   ),
                 ),
               ),

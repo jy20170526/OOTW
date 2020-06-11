@@ -1,10 +1,11 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_storage/firebase_storage.dart';
-import 'package:ootw/detail.dart';
+import 'detail.dart';
 import 'package:weather/weather_library.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:ootw/module.dart';
+import 'module.dart';
+
 
 class FavoritePage extends StatefulWidget {
 
@@ -54,6 +55,12 @@ class _FavoritePageState extends State<FavoritePage> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: <Widget>[
+                      Text(
+                        widget.user.displayName!=null
+                            ?widget.user.displayName+'님의'
+                            :'익명님의',
+                        style: TextStyle(fontSize: 15),),
+                      SizedBox(width: 8,),
                       Text('찜 ', style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold),),
                       Text('리스트', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),),
                     ],

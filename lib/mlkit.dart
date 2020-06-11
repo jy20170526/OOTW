@@ -6,7 +6,7 @@ import 'package:firebase_ml_vision/firebase_ml_vision.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:weather/weather_library.dart';
-import 'package:ootw/module.dart';
+import 'module.dart';
 import 'detail.dart';
 
 class mlPage extends StatefulWidget {
@@ -82,14 +82,13 @@ class _mlPageState extends State<mlPage> {
                 return Align(
                   alignment: Alignment.centerLeft,
                   child: Container(
-
                     child: FlatButton(
                       shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(18.0),
-                          side: BorderSide(color: Colors.blue)
+                          borderRadius: BorderRadius.circular(12.0),
+                          side: BorderSide(color:Color(0xFF76AEC7),)
                       ),
                       splashColor: Colors.blueAccent,
-                      child: Text('#'+cloudLabels[index].text,style: TextStyle(fontSize: 15, color: selected == cloudLabels[index].text? Colors.black : Colors.grey),),
+                      child: Text('#'+cloudLabels[index].text,style: TextStyle(fontSize: 13, color: selected == cloudLabels[index].text? Colors.black : Colors.grey),),
                       onPressed: () {
                         setState(() {
                           selected = cloudLabels[index].text;
@@ -101,7 +100,7 @@ class _mlPageState extends State<mlPage> {
               }),
         )
             :
-            Text('배경을 골라주세요!'),
+            Text('배경을 선택하세요!'),
         SizedBox(height: 10,),
         imgLoaded?
         Column(
@@ -109,15 +108,14 @@ class _mlPageState extends State<mlPage> {
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
-                Text('$place',style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold),),
+                Text('$place',style: TextStyle(color: Colors.red[300], fontWeight: FontWeight.bold),),
                 Text(' 에 갈 땐 '),
-                Text('$item',style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold),),
-                Text(' 필수죠!'),
+                Text('$item',style: TextStyle(color: Colors.red[300], fontWeight: FontWeight.bold),),
+                Text(' 필수!'),
               ],
             ),
             Container(
-                height: 450,
-
+                height: 260,
                 child: _buildCard(context)),
           ],
         )

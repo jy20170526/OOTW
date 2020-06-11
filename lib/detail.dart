@@ -5,9 +5,9 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:ootw/website.dart';
+import 'website.dart';
 import 'package:weather/weather_library.dart';
-import 'package:ootw/module.dart';
+import 'module.dart';
 
 import 'ootw.dart';
 

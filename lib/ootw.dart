@@ -2,10 +2,9 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_storage/firebase_storage.dart';
-import 'package:ootw/detail.dart';
+import 'detail.dart';
 import 'package:weather/weather_library.dart';
-import 'package:ootw/module.dart';
-
+import 'module.dart';
 import 'mlkit.dart';
 
 class ootwPage extends StatefulWidget {
@@ -51,22 +50,18 @@ class _ootwPageState extends State<ootwPage> {
     });
     print(ootwList);
 
-
-
     return SingleChildScrollView(
       child: Padding(
-        padding: const EdgeInsets.all(20.0),
+        padding: const EdgeInsets.all(10.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: <Widget>[
-            Padding(padding: EdgeInsets.all(10),),
+            Padding(padding: EdgeInsets.all(5),),
             Stack(
               children: <Widget>[
-
                 Container(
                   height: 200,
                   width: double.infinity,
-
                   color: Color(0xFFEFEDED),
                   child: Padding(
                     padding: const EdgeInsets.all(8.0),
@@ -74,7 +69,8 @@ class _ootwPageState extends State<ootwPage> {
                       mainAxisAlignment: MainAxisAlignment.start,
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: <Widget>[
-                        Text('# OOTW', style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold, color: Colors.black54),),
+                        SizedBox(height: 10,),
+                        Text('오늘의 OOTW는?', style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Colors.black87),),
                         SizedBox(height: 10,),
                         Expanded(
                           child: ListView.builder(
@@ -84,17 +80,15 @@ class _ootwPageState extends State<ootwPage> {
                                      alignment: Alignment.centerLeft,
                                        child: ChoiceChip(
                                          selected: choice == index,
-                                         label: Text('#'+ootwList[index],style: TextStyle(fontSize: 15, color: selectedCate == ootwList[index]? Colors.black : Colors.grey),),
+                                         label: Text('# '+ootwList[index],style: TextStyle(fontSize: 13, color: selectedCate == ootwList[index]? Colors.white : Colors.grey),),
                                          onSelected: (bool selected){
                                            setState(() {
                                              choice = selected ? index : null;
                                              selectedCate = ootwList[index];
                                            });
-
                                          },
-                                         selectedColor: Color(0xFFD2F0F7),
+                                         selectedColor: Colors.black87,
                                        ),
-//
                                    );
                                  }),
                         )
@@ -103,38 +97,40 @@ class _ootwPageState extends State<ootwPage> {
                   ),
                 ),
                 Positioned(
-                  top: 10,
-                  right: 10,
+                  top: 40,
+                  right: 25,
                   child: Image.asset('images/tshirt.png'),
                 ),
                 Positioned(
-                  bottom: 40,
-                  right: 25,
+                  top: 124,
+                  right: 40,
                   child: Image.asset('images/short.png'),
                 ),
                 Positioned(
                   bottom: 40,
-                  right: 100,
+                  right: 115,
                   child: Image.asset('images/shoes.png'),
                 ),
               ],
             ),
-            SizedBox(height: 40,),
-            FlatButton(
-              shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(18.0),
-                  side: BorderSide(color: Colors.blue)
-              ),
-              child: Text('이 장소엔 어떤옷?'), onPressed: (){
-              Navigator.push(context, MaterialPageRoute(builder: (context) => mlPage(widget.weather,widget.user, gender)));
-            },),
+            SizedBox(height: 10,),
             Text(selectedCate == null ? '카테고리를 선택해 주세요.' : '\'$selectedCate\' 에 대한 검색 결과입니다.'),
+            SizedBox(height: 8,),
             selectedCate == null?
-            Container():
+            SizedBox(height: 260,):
             Container(
-                height: 450,
-
+                height: 260,
                 child: _buildCard(context)),
+            SizedBox(height: 10),
+            FlatButton(
+              color: Colors.white,
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12.0),
+                  side: BorderSide(color: Color(0xFF76AEC7),)
+              ),
+              child: Text('이 장소에 딱 맞는 패션은?', style: TextStyle(color: Color(0xFF76AEC7)),), onPressed: (){
+              Navigator.push(context, MaterialPageRoute(builder: (context) => mlPage(widget.weather,widget.user, gender),  fullscreenDialog: true));
+            },),
           ],
         ),
       )

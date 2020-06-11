@@ -1,19 +1,19 @@
 import 'package:flutter/material.dart';
 import 'login.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 
 class ProfilePage extends StatelessWidget {
   final FirebaseUser user;
-
   ProfilePage(this.user);
-  //type==1 //google login
-  //type==0 //anonymous
+
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
+          backgroundColor: Color(0xFFD2F0F7),
           actions: <Widget>[
             IconButton(
               icon: Icon(
@@ -39,7 +39,9 @@ class ProfilePage extends StatelessWidget {
             width: 130,
             height: 130,
             child: Image.network(
-              user.photoUrl,
+              user.displayName!=null
+              ?user.photoUrl
+              :'http://handong.edu/site/handong/res/img/logo.png'
             ),
           ),
           SizedBox(
@@ -75,7 +77,9 @@ class ProfilePage extends StatelessWidget {
                     ),
                     SizedBox(width: 15,),
                     Text(
-                      user.displayName,
+                      user.displayName!=null
+                      ?user.displayName
+                      :'Anonymous',
                       style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                     ),
 
@@ -91,7 +95,9 @@ class ProfilePage extends StatelessWidget {
                     ),
                     SizedBox(width: 16,),
                     Text(
-                      user.email,
+                      user.displayName!=null
+                      ?user.email
+                    :'Anonymous',
                       style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                     ),
 
